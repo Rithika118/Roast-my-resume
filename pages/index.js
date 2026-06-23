@@ -83,6 +83,37 @@ Overall: This resume has a career story hiding in it, but it is being far too po
       ? 'Roast my resume'
       : `Add ${charactersNeeded} more characters`;
 
+  const handlePdfUpload = async (event) => {
+  const file = event.target.files?.[0];
+
+  if (!file) return;
+
+  if (file.size > 5 * 1024 * 1024) {
+    alert("PDF must be under 5MB");
+    return;
+  }
+
+  const formData = new FormData();
+  formData.append("file", file);
+
+  try {
+    const response = await fetch("/api/upload", {
+      method: "POST",
+      body: formData,
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.error);
+    }
+
+    setResume(data.text);
+  } catch (error) {
+    alert(error.message);
+  }
+};
+  
   const handleSubmit = (event) => {
     event.preventDefault();
 
@@ -146,6 +177,13 @@ Overall: This resume has a career story hiding in it, but it is being far too po
             </span>
           </div>
 
+          <input
+               type="file"
+               accept=".pdf,application/pdf"
+               onChange={handlePdfUpload}
+               className="mb-4 block w-full text-sm text-slate-300"
+          />
+                 
           <textarea
             className="h-72 w-full resize-none rounded-xl border border-slate-700 bg-slate-950 p-4 text-base leading-7 text-slate-100 outline-none transition placeholder:text-slate-600 focus:border-fuchsia-400 focus:ring-2 focus:ring-fuchsia-400/30 sm:h-80"
             onChange={(event) => setResume(event.target.value)}
