@@ -83,7 +83,7 @@ Overall: This resume has a career story hiding in it, but it is being far too po
       ? 'Roast my resume'
       : `Add ${charactersNeeded} more characters`;
 
-  const handlePdfUpload = async (event) => {
+    const handlePdfUpload = async (event) => {
   const file = event.target.files?.[0];
 
   if (!file) return;
