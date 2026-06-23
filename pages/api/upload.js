@@ -1,17 +1,3 @@
-
-      resolve({ fields, files });
-    });
-  });
-}
-
-function isTooLargeError(error) {
-  return (
-    error?.code === formidable.errors?.biggerThanMaxFileSize ||
-    error?.code === formidable.errors?.maxTotalFileSizeExceeded ||
-    /max.*file.*size|larger than/i.test(error?.message || '')
-  );
-}
-
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     res.setHeader('Allow', 'POST');
@@ -45,7 +31,11 @@ export default async function handler(req, res) {
     const text = await parsePDF(buffer);
 
     if (!text) {
-      return sendError(res, 422, 'Could not extract readable text from this PDF.');
+      return sendError(
+        res,
+        422,
+        'Could not extract readable text from this PDF.'
+      );
     }
 
     return res.status(200).json({ text });
@@ -55,7 +45,11 @@ export default async function handler(req, res) {
     }
 
     console.error('PDF upload failed:', error);
-    return sendError(res, 500, 'Unable to process the uploaded PDF. Please try again.');
+    return sendError(
+      res,
+      500,
+      'Unable to process the uploaded PDF. Please try again.'
+    );
   } finally {
     if (uploadedFile?.filepath) {
       await unlink(uploadedFile.filepath).catch(() => {});
