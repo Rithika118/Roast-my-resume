@@ -15,8 +15,8 @@ For step-by-step build instructions, see [TUTORIAL.md](./TUTORIAL.md).
 | Phase | Status | Description |
 |-------|--------|-------------|
 | **Phase 1** | ✅ Complete | Single-page UI — hero, resume textarea, roast button, animated results with 3 fixes |
-| **Phase 2** | \/ Scaffolded | `/api/roast` — Claude AI integration via `lib/claude.js` |
-| **Phase 3** | 🔲 Scaffolded | PDF upload page, dropzone component, and `/api/upload` |
+| **Phase 2** | ✅ Complete | `/api/roast` — Claude AI integration via `lib/claude.js` |
+| **Phase 3** | ✅ Complete | PDF upload page, dropzone component, and `/api/upload` |
 | **Phase 4** | 🔲 Scaffolded | User authentication via `/api/auth/[...newAuth]` |
 | **Phase 5** | 🔲 Scaffolded | Database persistence, feedback detail page, score UI |
 
