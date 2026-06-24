@@ -20,6 +20,7 @@ export default function ResumeRoasterApp() {
   const [resume, setResume] = useState('');
   const [roast, setRoast] = useState('');
   const [fixes, setFixes] = useState([]);
+  const [errorMessage, setErrorMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [showResults, setShowResults] = useState(false);
 
@@ -114,7 +115,7 @@ Overall: This resume has a career story hiding in it, but it is being far too po
   }
 };
   
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
 
     if (!hasEnoughText || isLoading) return;
@@ -123,14 +124,44 @@ Overall: This resume has a career story hiding in it, but it is being far too po
     setShowResults(false);
     setRoast('');
     setFixes([]);
+    setErrorMessage('');
 
-    window.setTimeout(() => {
-      const { roastText, fixes: mainFixes } = buildRoast();
-      setRoast(roastText);
-      setFixes(mainFixes);
-      setIsLoading(false);
+    try {
+      const response = await fetch('/api/roast', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ text: trimmedResume }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data?.error?.message || 'Unable to roast resume.');
+      }
+
+      const sectionText = Array.isArray(data.sections)
+        ? data.sections
+            .map(
+              (section) =>
+                `${section.sectionName}:\n${section.critique}\nStrengths: ${section.strengths.join(', ')}\nRecommendations: ${section.recommendations.join(', ')}`
+            )
+            .join('\n\n')
+        : '';
+
+      const roastBody = [data.overallSummary, sectionText].filter(Boolean).join('\n\n');
+
+      setRoast(roastBody);
+      setFixes(Array.isArray(data.topFixes) ? data.topFixes : []);
       setShowResults(true);
-    }, 900);
+    } catch (error) {
+      setErrorMessage(
+        error instanceof Error ? error.message : 'Unexpected error while roasting your resume.'
+      );
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -205,6 +236,12 @@ Overall: This resume has a career story hiding in it, but it is being far too po
               buttonLabel
             )}
           </button>
+
+          {errorMessage ? (
+            <p className="mt-3 text-left text-sm text-red-300">
+              {errorMessage}
+            </p>
+          ) : null}
 
           {!hasEnoughText && characterCount > 0 && (
             <p className="mt-3 text-left text-sm text-slate-500">
