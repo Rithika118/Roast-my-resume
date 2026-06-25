@@ -18,10 +18,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(503).json({
       error: {
         message: 'Claude AI is not configured yet. Add ANTHROPIC_API_KEY to your environment to enable roasting.',
-        console.log("isClaudeConfigured:", isClaudeConfigured);
-console.log("anthropicClient exists:", !!anthropicClient);
-console.log("env key exists:", !!process.env.ANTHROPIC_API_KEY);
-console.log("env key length:", process.env.ANTHROPIC_API_KEY?.length);
       },
     });
   }
