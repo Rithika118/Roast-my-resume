@@ -1,5 +1,11 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { anthropicClient, CLAUDE_SONNET_MODEL, buildResumeRoastPrompt, isClaudeConfigured } from '../../lib/claude';
+import {
+  CLAUDE_SONNET_MODEL,
+  buildFallbackRoastResponse,
+  buildResumeRoastPrompt,
+  getAnthropicClient,
+  isClaudeConfigured,
+} from '../../lib/claude';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'POST') {
@@ -14,12 +20,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(400).json({ error: { message: 'Resume text is required.' } });
   }
 
-  if (!isClaudeConfigured || !anthropicClient) {
-    return res.status(503).json({
-      error: {
-        message: 'Claude AI is not configured yet. Add ANTHROPIC_API_KEY to your environment to enable roasting.',
-      },
-    });
+  const anthropicClient = getAnthropicClient();
+
+  if (!isClaudeConfigured() || !anthropicClient) {
+    return res.status(200).json(buildFallbackRoastResponse(resumeText));
   }
 
   try {
@@ -75,13 +79,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(200).json(parsed);
   } catch (error) {
     console.error('Roast API failed:', error);
-    return res.status(500).json({
-      error: {
-        message:
-          error instanceof Error
-            ? error.message
-            : 'An unexpected error occurred while generating the roast.',
-      },
-    });
+    return res.status(200).json(buildFallbackRoastResponse(resumeText));
   }
 }
